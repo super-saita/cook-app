@@ -62,28 +62,23 @@ export function IngredientForm({ onSubmit }: IngredientFormProps) {
       <h1>目指せ食品ロスと料理の達人</h1>
       <p className="lead">冷蔵庫に残っている食材を入力してください。</p>
 
-      <div className="style-tabs" role="tablist" aria-label="作りたい料理のスタイル">
-        <button
-          type="button"
-          role="tab"
-          aria-selected={selectedStyle === null}
-          className={`style-tab${selectedStyle === null ? ' selected' : ''}`}
-          onClick={() => setSelectedStyle(null)}
+      <label className="style-select-label" htmlFor="style-select">
+        作りたい料理のスタイル
+      </label>
+      <div className="style-select-wrapper">
+        <select
+          id="style-select"
+          className="style-select"
+          value={selectedStyle ?? ''}
+          onChange={(e) => setSelectedStyle((e.target.value || null) as StyleKey | null)}
         >
-          🎲 おまかせ
-        </button>
-        {STYLE_LIST.map((style) => (
-          <button
-            type="button"
-            role="tab"
-            aria-selected={selectedStyle === style.key}
-            key={style.key}
-            className={`style-tab${selectedStyle === style.key ? ' selected' : ''}`}
-            onClick={() => setSelectedStyle(style.key)}
-          >
-            {style.emoji} {style.label}
-          </button>
-        ))}
+          <option value="">🎲 おまかせ</option>
+          {STYLE_LIST.map((style) => (
+            <option key={style.key} value={style.key}>
+              {style.emoji} {style.label}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div className="input-wrapper">

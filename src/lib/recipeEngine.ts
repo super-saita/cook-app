@@ -145,7 +145,7 @@ const STYLES: Record<string, StyleDefinition> = {
     ],
   },
   namul: {
-    emoji: '🌿',
+    emoji: '🥬',
     titleSuffix: 'ナムル',
     extraItems: DEFAULT_EXTRA_ITEMS,
     seasoning: () => [
@@ -163,7 +163,7 @@ const STYLES: Record<string, StyleDefinition> = {
     ],
   },
   sweetvinegar: {
-    emoji: '🍊',
+    emoji: '🍯',
     titleSuffix: '甘酢あん',
     extraItems: '片栗粉は水で溶いてから加えてください。',
     seasoning: () => [
@@ -182,7 +182,7 @@ const STYLES: Record<string, StyleDefinition> = {
     ],
   },
   foilbake: {
-    emoji: '🎁',
+    emoji: '🔥',
     titleSuffix: 'ホイル焼き',
     extraItems: 'アルミホイルが必要です。',
     seasoning: () => [
@@ -307,21 +307,44 @@ function pickStyleKeys(detected: IngredientInfo[]): StyleKey[] {
   return priority.filter((style) => compatible.includes(style))
 }
 
+// スタイルによっては、入力された食材だけだと寂しい・定番の構成に足りない
+// ことがある（例：豚肉だけの「カレー」）。ここに載っているスタイルでは、
+// まだ入っていなければ定番の副材料を自動で補う。
+const STANDARD_COMPANIONS: Partial<Record<StyleKey, string[]>> = {
+  curry: ['じゃがいも', 'にんじん', '玉ねぎ'],
+  sweetvinegar: ['玉ねぎ', 'ピーマン'],
+}
+
+function getCompanionIngredients(styleKey: StyleKey, detected: IngredientInfo[]): IngredientInfo[] {
+  const companionNames = STANDARD_COMPANIONS[styleKey] ?? []
+  const detectedNames = new Set(detected.map((ingredient) => ingredient.name))
+  return companionNames
+    .filter((name) => !detectedNames.has(name))
+    .map((name) => ingredientDictionary.find((ingredient) => ingredient.name === name))
+    .filter((ingredient): ingredient is IngredientInfo => ingredient !== undefined)
+}
+
 function buildRecipeForStyle(
   styleKey: keyof typeof STYLES,
   detected: IngredientInfo[],
   idSuffix: string,
 ): Recipe {
   const style = STYLES[styleKey]
+  const companions = getCompanionIngredients(styleKey, detected)
+  const allIngredients = [...detected, ...companions]
   const joinedNames = joinNames(detected.map((d) => d.name))
+  const extraItems =
+    companions.length > 0
+      ? `${companions.map((c) => c.name).join('・')}を定番の具材として追加しています。お好みで調整してください。`
+      : style.extraItems
   return {
     id: `gen-${styleKey}-${idSuffix}`,
     title: `${joinedNames}の${style.titleSuffix}`,
     requiredKeywords: detected.map((d) => d.name),
     servings: '2人分',
-    ingredients: [...mainIngredients(detected), ...style.seasoning(detected)],
-    extraItems: style.extraItems,
-    steps: style.buildSteps(detected),
+    ingredients: [...mainIngredients(allIngredients), ...style.seasoning(detected)],
+    extraItems,
+    steps: style.buildSteps(allIngredients),
     emoji: style.emoji,
   }
 }
