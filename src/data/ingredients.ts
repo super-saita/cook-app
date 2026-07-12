@@ -39,7 +39,7 @@ const others: IngredientInfo[] = [
   { name: '小松菜', amount: '1束', prep: '4cm幅に切る' },
   { name: '白菜', amount: '1/4個', prep: 'ざく切りにする' },
   { name: '大根', amount: '1/3本', prep: 'いちょう切りにする' },
-  { name: '長ねぎ', amount: '1本', prep: '斜め薄切りにする' },
+  { name: 'ねぎ', amount: '1本', prep: '斜め薄切りにする' },
   { name: 'にら', amount: '1束', prep: '4cm幅に切る' },
   { name: 'ブロッコリー', amount: '1株', prep: '小房に分ける' },
   { name: 'アスパラ', amount: '1束', prep: '斜め切りにする' },
