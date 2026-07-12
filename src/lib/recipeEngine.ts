@@ -23,9 +23,12 @@ function mainIngredients(detected: IngredientInfo[]): RecipeIngredient[] {
 interface StyleDefinition {
   emoji: string
   titleSuffix: string
+  extraItems: string
   seasoning: (detected: IngredientInfo[]) => RecipeIngredient[]
   buildSteps: (detected: IngredientInfo[]) => string[]
 }
+
+const DEFAULT_EXTRA_ITEMS = '基本の調味料のみで作れます。'
 
 // キムチのように味の系統がはっきりした食材が入っているときは、
 // 標準の調味料（コンソメ・醤油だけ等）だとちぐはぐになるため、
@@ -38,6 +41,7 @@ const STYLES: Record<string, StyleDefinition> = {
   stirfry: {
     emoji: '🍳',
     titleSuffix: '炒め物',
+    extraItems: DEFAULT_EXTRA_ITEMS,
     seasoning: (detected) =>
       hasKimchi(detected)
         ? [
@@ -64,6 +68,7 @@ const STYLES: Record<string, StyleDefinition> = {
   simmer: {
     emoji: '🍲',
     titleSuffix: '煮物',
+    extraItems: DEFAULT_EXTRA_ITEMS,
     seasoning: (detected) =>
       hasKimchi(detected)
         ? [
@@ -95,6 +100,7 @@ const STYLES: Record<string, StyleDefinition> = {
   soup: {
     emoji: '🥣',
     titleSuffix: 'スープ',
+    extraItems: DEFAULT_EXTRA_ITEMS,
     seasoning: (detected) =>
       hasKimchi(detected)
         ? [
@@ -126,6 +132,7 @@ const STYLES: Record<string, StyleDefinition> = {
   salad: {
     emoji: '🥗',
     titleSuffix: 'サラダ',
+    extraItems: DEFAULT_EXTRA_ITEMS,
     seasoning: () => [
       { name: 'マヨネーズ', amount: '大さじ2' },
       { name: '醤油', amount: '小さじ1' },
@@ -137,9 +144,64 @@ const STYLES: Record<string, StyleDefinition> = {
       'マヨネーズ・醤油を加えて和えれば出来上がり。',
     ],
   },
+  namul: {
+    emoji: '🌿',
+    titleSuffix: 'ナムル',
+    extraItems: DEFAULT_EXTRA_ITEMS,
+    seasoning: () => [
+      { name: 'ごま油', amount: '大さじ1' },
+      { name: '鶏がらスープの素', amount: '小さじ1' },
+      { name: 'すりごま', amount: '大さじ1' },
+      { name: 'おろしニンニク', amount: '少々' },
+      { name: '塩', amount: '少々' },
+    ],
+    buildSteps: (detected) => [
+      ...prepLines(detected),
+      '食材はさっと茹でるか電子レンジで加熱し、水気をよく切る。',
+      'ボウルに食材を入れる。',
+      'ごま油・鶏がらスープの素・すりごま・ニンニク・塩を加えて和えれば出来上がり。',
+    ],
+  },
+  sweetvinegar: {
+    emoji: '🍊',
+    titleSuffix: '甘酢あん',
+    extraItems: '片栗粉は水で溶いてから加えてください。',
+    seasoning: () => [
+      { name: 'ケチャップ', amount: '大さじ2' },
+      { name: '酢', amount: '大さじ2' },
+      { name: '砂糖', amount: '大さじ1' },
+      { name: '醤油', amount: '大さじ1' },
+      { name: '水溶き片栗粉', amount: '大さじ2' },
+      { name: 'サラダ油', amount: '大さじ1' },
+    ],
+    buildSteps: (detected) => [
+      ...prepLines(detected),
+      `フライパンに油をひき、${detected[0].name}から順に中火で炒める。`,
+      '全体に火が通ったら、ケチャップ・酢・砂糖・醤油を混ぜたタレを加えて絡める。',
+      '水溶き片栗粉を加え、とろみがついたら出来上がり。',
+    ],
+  },
+  foilbake: {
+    emoji: '🎁',
+    titleSuffix: 'ホイル焼き',
+    extraItems: 'アルミホイルが必要です。',
+    seasoning: () => [
+      { name: 'バター', amount: '15g' },
+      { name: '酒', amount: '大さじ1' },
+      { name: 'ポン酢', amount: '大さじ2' },
+    ],
+    buildSteps: (detected) => [
+      ...prepLines(detected),
+      'アルミホイルに食材をすべてのせる。',
+      '酒をふりかけ、バターをのせて包む。',
+      'フライパンかグリルで中火10〜12分蒸し焼きにする。',
+      '仕上げにポン酢をかければ出来上がり。',
+    ],
+  },
   gratin: {
     emoji: '🧀',
     titleSuffix: 'チーズグラタン',
+    extraItems: DEFAULT_EXTRA_ITEMS,
     seasoning: () => [
       { name: 'バター', amount: '20g' },
       { name: '小麦粉', amount: '大さじ2' },
@@ -158,6 +220,7 @@ const STYLES: Record<string, StyleDefinition> = {
   curry: {
     emoji: '🍛',
     titleSuffix: 'カレー',
+    extraItems: DEFAULT_EXTRA_ITEMS,
     seasoning: () => [
       { name: '水', amount: '400ml' },
       { name: 'カレールウ', amount: '2〜3皿分' },
@@ -187,7 +250,7 @@ const STYLE_OVERRIDES: Record<string, StyleKey[]> = {
   'みょうが': ['salad', 'soup'],
   'セロリ': ['salad', 'stirfry', 'soup', 'simmer'],
   // 食感が繊細で、煮込み過ぎたり焼き込んだりすると水っぽくなる
-  'もやし': ['stirfry', 'soup', 'salad'],
+  'もやし': ['stirfry', 'soup', 'salad', 'namul'],
   // 発酵食品でクセが強く、洋風のこってりした料理と合わせにくい
   '納豆': ['soup'],
   'キムチ': ['stirfry', 'soup', 'simmer', 'gratin'],
@@ -197,18 +260,44 @@ function getCompatibleStyles(ingredient: IngredientInfo): StyleKey[] {
   return STYLE_OVERRIDES[ingredient.name] ?? ALL_STYLES
 }
 
+const SEAFOOD_INGREDIENTS = new Set(['鮭', 'えび', 'さば缶', 'ツナ缶'])
+const NAMUL_FRIENDLY_INGREDIENTS = new Set([
+  'もやし',
+  'にんじん',
+  'ほうれん草',
+  '小松菜',
+  '豆腐',
+  '大根',
+  'きゅうり',
+  '豆苗',
+])
+
 // 検出された食材すべてが対応できるスタイルの共通部分だけを候補にする。
 // こうすることで「レタスと牛肉のチーズグラタン」のような、食材とスタイルが
 // 噛み合わない組み合わせを提案しないようにする。
+// さらに、食材の傾向（魚介・根菜・ナムル向き等）によって優先順位を変え、
+// 毎回同じ3スタイルばかりにならないようにする。
 function pickStyleKeys(detected: IngredientInfo[]): StyleKey[] {
   const compatible = ALL_STYLES.filter((style) =>
     detected.every((ingredient) => getCompatibleStyles(ingredient).includes(style)),
   )
 
   const hasRoot = detected.some((ingredient) => ROOT_STYLE_INGREDIENTS.has(ingredient.name))
-  const priority: StyleKey[] = hasRoot
-    ? ['simmer', 'stirfry', 'curry', 'soup', 'gratin', 'salad']
-    : ['stirfry', 'soup', 'gratin', 'salad', 'simmer', 'curry']
+  const hasSeafood = detected.some((ingredient) => SEAFOOD_INGREDIENTS.has(ingredient.name))
+  const hasNamulFriendly = detected.some((ingredient) =>
+    NAMUL_FRIENDLY_INGREDIENTS.has(ingredient.name),
+  )
+
+  let priority: StyleKey[]
+  if (hasSeafood) {
+    priority = ['foilbake', 'stirfry', 'soup', 'gratin', 'sweetvinegar', 'simmer', 'namul', 'salad', 'curry']
+  } else if (hasRoot) {
+    priority = ['simmer', 'curry', 'sweetvinegar', 'stirfry', 'soup', 'gratin', 'namul', 'salad', 'foilbake']
+  } else if (hasNamulFriendly) {
+    priority = ['namul', 'stirfry', 'sweetvinegar', 'soup', 'gratin', 'salad', 'simmer', 'foilbake', 'curry']
+  } else {
+    priority = ['stirfry', 'sweetvinegar', 'soup', 'gratin', 'salad', 'namul', 'simmer', 'foilbake', 'curry']
+  }
 
   return priority.filter((style) => compatible.includes(style))
 }
@@ -226,7 +315,7 @@ function buildRecipeForStyle(
     requiredKeywords: detected.map((d) => d.name),
     servings: '2人分',
     ingredients: [...mainIngredients(detected), ...style.seasoning(detected)],
-    extraItems: '基本の調味料のみで作れます。',
+    extraItems: style.extraItems,
     steps: style.buildSteps(detected),
     emoji: style.emoji,
   }
