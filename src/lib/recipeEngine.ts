@@ -125,10 +125,44 @@ const STYLES: Record<string, StyleDefinition> = {
   },
 }
 
-// 根菜系が含まれる場合は「煮る・煮込む」系、それ以外は「焼く・煮立てる」系を提案する
-function pickStyleKeys(detected: IngredientInfo[]): (keyof typeof STYLES)[] {
+type StyleKey = keyof typeof STYLES
+
+const ALL_STYLES = Object.keys(STYLES) as StyleKey[]
+
+// 生食向き・特殊な食材は、合わない調理法（グラタンやカレーなど）を除外する。
+// ここに載っていない食材はすべてのスタイルに対応できるとみなす。
+const STYLE_OVERRIDES: Record<string, StyleKey[]> = {
+  // 生でシャキシャキ食べるのが基本で、こってり煮込む・焼き込む料理には向かない
+  'レタス': ['salad', 'stirfry', 'soup'],
+  'きゅうり': ['salad', 'stirfry', 'soup'],
+  '豆苗': ['salad', 'stirfry', 'soup'],
+  'みょうが': ['salad', 'soup'],
+  'セロリ': ['salad', 'stirfry', 'soup', 'simmer'],
+  // 食感が繊細で、煮込み過ぎたり焼き込んだりすると水っぽくなる
+  'もやし': ['stirfry', 'soup', 'salad'],
+  // 発酵食品でクセが強く、洋風のこってりした料理と合わせにくい
+  '納豆': ['soup'],
+  'キムチ': ['stirfry', 'soup', 'simmer', 'gratin'],
+}
+
+function getCompatibleStyles(ingredient: IngredientInfo): StyleKey[] {
+  return STYLE_OVERRIDES[ingredient.name] ?? ALL_STYLES
+}
+
+// 検出された食材すべてが対応できるスタイルの共通部分だけを候補にする。
+// こうすることで「レタスと牛肉のチーズグラタン」のような、食材とスタイルが
+// 噛み合わない組み合わせを提案しないようにする。
+function pickStyleKeys(detected: IngredientInfo[]): StyleKey[] {
+  const compatible = ALL_STYLES.filter((style) =>
+    detected.every((ingredient) => getCompatibleStyles(ingredient).includes(style)),
+  )
+
   const hasRoot = detected.some((ingredient) => ROOT_STYLE_INGREDIENTS.has(ingredient.name))
-  return hasRoot ? ['stirfry', 'simmer', 'curry'] : ['stirfry', 'soup', 'gratin']
+  const priority: StyleKey[] = hasRoot
+    ? ['simmer', 'stirfry', 'curry', 'soup', 'gratin', 'salad']
+    : ['stirfry', 'soup', 'gratin', 'salad', 'simmer', 'curry']
+
+  return priority.filter((style) => compatible.includes(style))
 }
 
 function buildRecipeForStyle(
