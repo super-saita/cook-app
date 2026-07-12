@@ -23,62 +23,110 @@ function mainIngredients(detected: IngredientInfo[]): RecipeIngredient[] {
 interface StyleDefinition {
   emoji: string
   titleSuffix: string
-  seasoning: RecipeIngredient[]
+  seasoning: (detected: IngredientInfo[]) => RecipeIngredient[]
   buildSteps: (detected: IngredientInfo[]) => string[]
+}
+
+// キムチのように味の系統がはっきりした食材が入っているときは、
+// 標準の調味料（コンソメ・醤油だけ等）だとちぐはぐになるため、
+// 系統に合う調味料・手順に差し替える。
+function hasKimchi(detected: IngredientInfo[]): boolean {
+  return detected.some((ingredient) => ingredient.name === 'キムチ')
 }
 
 const STYLES: Record<string, StyleDefinition> = {
   stirfry: {
     emoji: '🍳',
     titleSuffix: '炒め物',
-    seasoning: [
-      { name: '醤油', amount: '大さじ1' },
-      { name: '酒', amount: '大さじ1' },
-      { name: '塩コショウ', amount: '少々' },
-      { name: 'サラダ油', amount: '大さじ1' },
-    ],
+    seasoning: (detected) =>
+      hasKimchi(detected)
+        ? [
+            { name: 'コチュジャン', amount: '大さじ1' },
+            { name: 'ごま油', amount: '大さじ1' },
+            { name: '醤油', amount: '小さじ1' },
+            { name: 'おろしニンニク', amount: '小さじ1/2' },
+          ]
+        : [
+            { name: '醤油', amount: '大さじ1' },
+            { name: '酒', amount: '大さじ1' },
+            { name: '塩コショウ', amount: '少々' },
+            { name: 'サラダ油', amount: '大さじ1' },
+          ],
     buildSteps: (detected) => [
       ...prepLines(detected),
       `フライパンに油をひき、${detected[0].name}から順に中火で炒める。`,
       '火が通ってきたら残りの食材を加え、炒め合わせる。',
-      '醤油・酒・塩コショウで味を調えれば出来上がり。',
+      hasKimchi(detected)
+        ? 'コチュジャン・ごま油・醤油・ニンニクを加えて絡めれば出来上がり。'
+        : '醤油・酒・塩コショウで味を調えれば出来上がり。',
     ],
   },
   simmer: {
     emoji: '🍲',
     titleSuffix: '煮物',
-    seasoning: [
-      { name: '水', amount: '300ml' },
-      { name: '醤油', amount: '大さじ2' },
-      { name: 'みりん', amount: '大さじ2' },
-      { name: '砂糖', amount: '大さじ1' },
-    ],
-    buildSteps: (detected) => [
-      ...prepLines(detected),
-      '鍋に水を入れて火にかけ、沸騰したら食材を加える。',
-      'アクを取りながら中火で5分ほど煮る。',
-      '醤油・みりん・砂糖を加え、落し蓋をして10分ほど煮含めれば出来上がり。',
-    ],
+    seasoning: (detected) =>
+      hasKimchi(detected)
+        ? [
+            { name: '水', amount: '200ml' },
+            { name: '味噌', amount: '大さじ1' },
+            { name: 'ごま油', amount: '小さじ1' },
+          ]
+        : [
+            { name: '水', amount: '300ml' },
+            { name: '醤油', amount: '大さじ2' },
+            { name: 'みりん', amount: '大さじ2' },
+            { name: '砂糖', amount: '大さじ1' },
+          ],
+    buildSteps: (detected) =>
+      hasKimchi(detected)
+        ? [
+            ...prepLines(detected),
+            '鍋にごま油を熱し、キムチ以外の食材を軽く炒める。',
+            'キムチと水を加えて煮立て、中火で5分ほど煮る。',
+            '味噌を溶き入れ、ひと煮立ちさせれば出来上がり。',
+          ]
+        : [
+            ...prepLines(detected),
+            '鍋に水を入れて火にかけ、沸騰したら食材を加える。',
+            'アクを取りながら中火で5分ほど煮る。',
+            '醤油・みりん・砂糖を加え、落し蓋をして10分ほど煮含めれば出来上がり。',
+          ],
   },
   soup: {
     emoji: '🥣',
     titleSuffix: 'スープ',
-    seasoning: [
-      { name: '水', amount: '400ml' },
-      { name: 'コンソメ顆粒', amount: '小さじ2' },
-      { name: '塩コショウ', amount: '少々' },
-    ],
-    buildSteps: (detected) => [
-      ...prepLines(detected),
-      '鍋に水とコンソメを入れて火にかける。',
-      '食材を加え、やわらかくなるまで煮る。',
-      '塩コショウで味を調えれば出来上がり。',
-    ],
+    seasoning: (detected) =>
+      hasKimchi(detected)
+        ? [
+            { name: '水', amount: '400ml' },
+            { name: '鶏がらスープの素', amount: '小さじ2' },
+            { name: '味噌', amount: '小さじ1' },
+            { name: 'ごま油', amount: '小さじ1' },
+          ]
+        : [
+            { name: '水', amount: '400ml' },
+            { name: 'コンソメ顆粒', amount: '小さじ2' },
+            { name: '塩コショウ', amount: '少々' },
+          ],
+    buildSteps: (detected) =>
+      hasKimchi(detected)
+        ? [
+            ...prepLines(detected),
+            '鍋にごま油を熱し、キムチ以外の食材を軽く炒める。',
+            '水と鶏がらスープの素、キムチを加えて煮立てる。',
+            '食材に火が通ったら味噌を溶き入れれば出来上がり。',
+          ]
+        : [
+            ...prepLines(detected),
+            '鍋に水とコンソメを入れて火にかける。',
+            '食材を加え、やわらかくなるまで煮る。',
+            '塩コショウで味を調えれば出来上がり。',
+          ],
   },
   salad: {
     emoji: '🥗',
     titleSuffix: 'サラダ',
-    seasoning: [
+    seasoning: () => [
       { name: 'マヨネーズ', amount: '大さじ2' },
       { name: '醤油', amount: '小さじ1' },
     ],
@@ -92,7 +140,7 @@ const STYLES: Record<string, StyleDefinition> = {
   gratin: {
     emoji: '🧀',
     titleSuffix: 'チーズグラタン',
-    seasoning: [
+    seasoning: () => [
       { name: 'バター', amount: '20g' },
       { name: '小麦粉', amount: '大さじ2' },
       { name: '牛乳', amount: '300ml' },
@@ -110,7 +158,7 @@ const STYLES: Record<string, StyleDefinition> = {
   curry: {
     emoji: '🍛',
     titleSuffix: 'カレー',
-    seasoning: [
+    seasoning: () => [
       { name: '水', amount: '400ml' },
       { name: 'カレールウ', amount: '2〜3皿分' },
       { name: 'ご飯', amount: 'お好みで' },
@@ -177,7 +225,7 @@ function buildRecipeForStyle(
     title: `${joinedNames}の${style.titleSuffix}`,
     requiredKeywords: detected.map((d) => d.name),
     servings: '2人分',
-    ingredients: [...mainIngredients(detected), ...style.seasoning],
+    ingredients: [...mainIngredients(detected), ...style.seasoning(detected)],
     extraItems: '基本の調味料のみで作れます。',
     steps: style.buildSteps(detected),
     emoji: style.emoji,
