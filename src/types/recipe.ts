@@ -13,8 +13,3 @@ export interface Recipe {
   steps: string[]
   emoji: string
 }
-
-export interface SavedRecipe extends Recipe {
-  savedAt: string
-  inputText: string
-}

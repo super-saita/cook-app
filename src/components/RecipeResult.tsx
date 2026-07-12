@@ -1,32 +1,55 @@
 import { useState } from 'react'
-import type { Recipe, SavedRecipe } from '../types/recipe'
-
-const STORAGE_KEY = 'cook-app.savedRecipes'
+import { useAuth } from '../contexts/AuthContext'
+import { supabase } from '../lib/supabaseClient'
+import type { Recipe } from '../types/recipe'
 
 interface RecipeResultProps {
   recipes: Recipe[]
   inputText: string
   onBack: () => void
+  onRequireAuth: () => void
 }
 
 interface RecipeCardProps {
   recipe: Recipe
   inputText: string
+  onRequireAuth: () => void
 }
 
-function RecipeCard({ recipe, inputText }: RecipeCardProps) {
+function RecipeCard({ recipe, inputText, onRequireAuth }: RecipeCardProps) {
+  const { user } = useAuth()
   const [saved, setSaved] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  const handleSave = () => {
-    const existing: SavedRecipe[] = JSON.parse(
-      localStorage.getItem(STORAGE_KEY) ?? '[]',
-    )
-    const newEntry: SavedRecipe = {
-      ...recipe,
-      inputText,
-      savedAt: new Date().toISOString(),
+  const handleSave = async () => {
+    if (!user) {
+      onRequireAuth()
+      return
     }
-    localStorage.setItem(STORAGE_KEY, JSON.stringify([...existing, newEntry]))
+
+    setSaving(true)
+    setError(null)
+
+    const { error: insertError } = await supabase.from('saved_recipes').insert({
+      user_id: user.id,
+      recipe_id: recipe.id,
+      title: recipe.title,
+      servings: recipe.servings,
+      ingredients: recipe.ingredients,
+      extra_items: recipe.extraItems,
+      steps: recipe.steps,
+      emoji: recipe.emoji,
+      input_text: inputText,
+    })
+
+    setSaving(false)
+
+    if (insertError) {
+      setError('保存に失敗しました。時間をおいて再度お試しください。')
+      return
+    }
+
     setSaved(true)
   }
 
@@ -55,26 +78,32 @@ function RecipeCard({ recipe, inputText }: RecipeCardProps) {
           <li key={i}>{step}</li>
         ))}
       </ol>
+      {error && <p className="modal-error">{error}</p>}
       <button
         type="button"
         className="primary-button"
         onClick={handleSave}
-        disabled={saved}
+        disabled={saved || saving}
       >
-        {saved ? '保存しました' : '保存する'}
+        {saved ? '保存しました' : saving ? '保存中…' : '保存する'}
       </button>
     </article>
   )
 }
 
-export function RecipeResult({ recipes, inputText, onBack }: RecipeResultProps) {
+export function RecipeResult({ recipes, inputText, onBack, onRequireAuth }: RecipeResultProps) {
   return (
     <div className="recipe-result">
       {recipes.length > 0 ? (
         <>
           <p className="suggestion-count">{recipes.length}件のレシピを提案します</p>
           {recipes.map((recipe) => (
-            <RecipeCard key={recipe.id} recipe={recipe} inputText={inputText} />
+            <RecipeCard
+              key={recipe.id}
+              recipe={recipe}
+              inputText={inputText}
+              onRequireAuth={onRequireAuth}
+            />
           ))}
         </>
       ) : (

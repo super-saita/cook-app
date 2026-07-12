@@ -2,10 +2,140 @@
   width: 100%;
   max-width: 480px;
   margin: 0 auto;
-  padding: 32px 20px 56px;
+  padding: 16px 20px 56px;
   flex: 1;
   display: flex;
   flex-direction: column;
+}
+
+/* ---------- アカウントバー ---------- */
+
+.account-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  min-height: 24px;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+.account-email {
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 200px;
+}
+
+.account-link {
+  padding: 0;
+  font: inherit;
+  font-weight: 700;
+  color: var(--accent-hover);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+/* ---------- ログインモーダル ---------- */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(44, 33, 24, 0.45);
+  z-index: 100;
+}
+
+.modal-content {
+  position: relative;
+  width: 100%;
+  max-width: 360px;
+  padding: 28px 24px 24px;
+  background: var(--bg-card);
+  border-radius: 20px;
+  box-shadow: var(--shadow-card-hover);
+}
+
+.modal-close {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  font-size: 22px;
+  line-height: 1;
+  color: var(--text);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.modal-content h2 {
+  font-size: 20px;
+  margin: 0 0 8px;
+}
+
+.modal-lead {
+  margin: 0 0 20px;
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.modal-field-label {
+  display: block;
+  margin: 0 0 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-h);
+}
+
+.modal-input {
+  width: 100%;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  font: inherit;
+  color: var(--text-h);
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.modal-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.modal-error {
+  margin: -8px 0 16px;
+  color: #c0392b;
+  font-size: 13px;
+}
+
+.modal-info {
+  margin: -8px 0 16px;
+  color: var(--accent-green);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.modal-switch {
+  display: block;
+  width: 100%;
+  margin-top: 16px;
+  padding: 0;
+  font: inherit;
+  font-size: 13px;
+  color: var(--text);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
 }
 
 /* ---------- 入力画面 ---------- */
