@@ -1,0 +1,85 @@
+.app-container {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 24px 20px 48px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.ingredient-form h1 {
+  font-size: 24px;
+  margin: 0 0 12px;
+}
+
+.ingredient-form .lead {
+  margin: 0 0 16px;
+  color: var(--text);
+}
+
+.ingredient-input {
+  width: 100%;
+  padding: 12px;
+  font: inherit;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  resize: vertical;
+  margin-bottom: 16px;
+}
+
+.primary-button {
+  width: 100%;
+  padding: 14px;
+  font: inherit;
+  font-weight: 700;
+  color: #fff;
+  background: var(--accent);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.primary-button:hover {
+  background: var(--accent-hover);
+}
+
+.primary-button:disabled {
+  background: #cccccc;
+  cursor: default;
+}
+
+.secondary-button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 12px;
+  font: inherit;
+  color: var(--text);
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.recipe-result h2 {
+  font-size: 22px;
+  margin-bottom: 8px;
+}
+
+.recipe-result .extra-items {
+  margin-bottom: 16px;
+  color: var(--text);
+}
+
+.recipe-result .steps {
+  padding-left: 20px;
+  margin: 0 0 24px;
+}
+
+.recipe-result .steps li {
+  margin-bottom: 8px;
+}
+
+.recipe-result .no-match {
+  margin: 24px 0;
+}
