@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { IngredientForm } from './components/IngredientForm'
 import { RecipeResult } from './components/RecipeResult'
+import { SavedRecipes } from './components/SavedRecipes'
 import { AuthModal } from './components/AuthModal'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import { getRecipeSuggestions } from './lib/recipeEngine'
@@ -8,7 +9,7 @@ import type { StyleKey } from './lib/recipeEngine'
 import type { Recipe } from './types/recipe'
 import './App.css'
 
-type Screen = 'input' | 'result'
+type Screen = 'input' | 'result' | 'saved'
 
 function AppContent() {
   const { user, signOut } = useAuth()
@@ -23,7 +24,8 @@ function AppContent() {
   useEffect(() => {
     const handlePopState = (event: PopStateEvent) => {
       const state = event.state as { screen?: Screen } | null
-      setScreen(state?.screen === 'result' ? 'result' : 'input')
+      const nextScreen = state?.screen
+      setScreen(nextScreen === 'result' || nextScreen === 'saved' ? nextScreen : 'input')
     }
     window.history.replaceState({ screen: 'input' }, '')
     window.addEventListener('popstate', handlePopState)
@@ -37,6 +39,11 @@ function AppContent() {
     window.history.pushState({ screen: 'result' }, '')
   }
 
+  const handleShowSaved = () => {
+    setScreen('saved')
+    window.history.pushState({ screen: 'saved' }, '')
+  }
+
   const handleBack = () => {
     window.history.back()
   }
@@ -46,6 +53,9 @@ function AppContent() {
       <div className="account-bar">
         {user ? (
           <>
+            <button type="button" className="account-link" onClick={handleShowSaved}>
+              保存済み
+            </button>
             <span className="account-email">{user.email}</span>
             <button type="button" className="account-link" onClick={() => signOut()}>
               ログアウト
@@ -58,9 +68,8 @@ function AppContent() {
         )}
       </div>
 
-      {screen === 'input' ? (
-        <IngredientForm onSubmit={handleSubmit} />
-      ) : (
+      {screen === 'input' && <IngredientForm onSubmit={handleSubmit} />}
+      {screen === 'result' && (
         <RecipeResult
           recipes={recipes}
           inputText={inputText}
@@ -68,6 +77,8 @@ function AppContent() {
           onRequireAuth={() => setAuthModalOpen(true)}
         />
       )}
+      {screen === 'saved' &&
+        (user ? <SavedRecipes onBack={handleBack} /> : <IngredientForm onSubmit={handleSubmit} />)}
 
       {authModalOpen && <AuthModal onClose={() => setAuthModalOpen(false)} />}
     </main>

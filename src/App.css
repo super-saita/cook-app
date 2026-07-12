@@ -336,6 +336,11 @@
 
 /* ---------- 結果画面 ---------- */
 
+.saved-heading {
+  font-size: 22px;
+  margin: 0 0 20px;
+}
+
 .recipe-result .suggestion-count {
   display: inline-block;
   margin: 0 0 20px;
