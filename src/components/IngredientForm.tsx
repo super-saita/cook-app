@@ -15,6 +15,7 @@ export function IngredientForm({ onSubmit }: IngredientFormProps) {
 
   return (
     <form className="ingredient-form" onSubmit={handleSubmit}>
+      <div className="app-badge" aria-hidden="true">🍳</div>
       <h1>目指せ食品ロスと料理の達人</h1>
       <p className="lead">冷蔵庫に残っている食材を入力してください。</p>
       <textarea

@@ -2,76 +2,141 @@
   width: 100%;
   max-width: 480px;
   margin: 0 auto;
-  padding: 24px 20px 48px;
+  padding: 32px 20px 56px;
   flex: 1;
   display: flex;
   flex-direction: column;
 }
 
+/* ---------- 入力画面 ---------- */
+
+.ingredient-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.app-badge {
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  background: linear-gradient(145deg, var(--accent-soft), #ffd9b8);
+  border-radius: 50%;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-card);
+}
+
 .ingredient-form h1 {
   font-size: 24px;
-  margin: 0 0 12px;
+  line-height: 1.4;
+  margin: 0 0 10px;
 }
 
 .ingredient-form .lead {
-  margin: 0 0 16px;
+  margin: 0 0 24px;
   color: var(--text);
 }
 
 .ingredient-input {
   width: 100%;
-  padding: 12px;
+  padding: 16px;
   font: inherit;
+  color: var(--text-h);
+  background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 16px;
   resize: vertical;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow-card);
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.ingredient-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
 .primary-button {
   width: 100%;
-  padding: 14px;
+  padding: 15px;
   font: inherit;
+  font-family: var(--font-heading);
   font-weight: 700;
+  font-size: 16px;
+  letter-spacing: 0.02em;
   color: #fff;
-  background: var(--accent);
+  background: linear-gradient(135deg, var(--accent), var(--accent-hover));
   border: none;
-  border-radius: 8px;
+  border-radius: 999px;
   cursor: pointer;
+  box-shadow: 0 6px 16px rgba(239, 125, 79, 0.35);
+  transition: transform 0.1s ease, box-shadow 0.15s ease;
 }
 
 .primary-button:hover {
-  background: var(--accent-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(239, 125, 79, 0.4);
+}
+
+.primary-button:active {
+  transform: translateY(0);
 }
 
 .primary-button:disabled {
-  background: #cccccc;
+  background: #d8cfc4;
+  box-shadow: none;
   cursor: default;
+  transform: none;
 }
 
 .secondary-button {
   width: 100%;
-  padding: 12px;
-  margin-top: 12px;
+  padding: 13px;
+  margin-top: 8px;
   font: inherit;
+  font-weight: 500;
   color: var(--text);
-  background: #ffffff;
+  background: transparent;
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 999px;
   cursor: pointer;
+  transition: background 0.15s ease;
 }
 
+.secondary-button:hover {
+  background: var(--bg-card);
+}
+
+/* ---------- 結果画面 ---------- */
+
 .recipe-result .suggestion-count {
-  margin: 0 0 16px;
-  color: var(--text);
-  font-size: 14px;
+  display: inline-block;
+  margin: 0 0 20px;
+  padding: 6px 14px;
+  color: var(--accent-hover);
+  background: var(--accent-soft);
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
 }
 
 .recipe-card {
+  background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 20px;
   padding: 20px;
   margin-bottom: 20px;
+  box-shadow: var(--shadow-card);
+  transition: box-shadow 0.2s ease;
+}
+
+.recipe-card:hover {
+  box-shadow: var(--shadow-card-hover);
 }
 
 .recipe-photo {
@@ -80,46 +145,56 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #faf6f0;
-  border-radius: 8px;
-  margin-bottom: 16px;
-  font-size: 64px;
+  background: linear-gradient(155deg, #fff3e4, var(--accent-soft));
+  border-radius: 14px;
+  margin-bottom: 18px;
+}
+
+.recipe-photo span {
+  font-size: 56px;
+  filter: drop-shadow(0 4px 6px rgba(60, 40, 20, 0.15));
 }
 
 .recipe-card h2 {
-  font-size: 20px;
+  font-size: 19px;
+  line-height: 1.4;
   margin-bottom: 4px;
 }
 
 .recipe-card .servings {
-  margin: 0 0 16px;
-  color: var(--text);
-  font-size: 14px;
+  display: inline-block;
+  margin: 0 0 18px;
+  color: var(--accent-green);
+  font-size: 13px;
+  font-weight: 700;
 }
 
 .recipe-card h3 {
-  font-size: 16px;
-  margin: 0 0 8px;
-  color: var(--text-h);
+  font-size: 14px;
+  margin: 0 0 10px;
+  color: var(--accent-hover);
+  letter-spacing: 0.02em;
 }
 
 .recipe-card .ingredients {
   list-style: none;
   padding: 0;
-  margin: 0 0 12px;
-  border-top: 1px solid var(--border);
+  margin: 0 0 16px;
+  border-top: 1px dashed var(--border);
 }
 
 .recipe-card .ingredients li {
   display: flex;
   justify-content: space-between;
   gap: 12px;
-  padding: 8px 0;
-  border-bottom: 1px solid var(--border);
+  padding: 9px 0;
+  border-bottom: 1px dashed var(--border);
+  font-size: 14px;
 }
 
 .recipe-card .ingredient-name {
   color: var(--text-h);
+  font-weight: 500;
 }
 
 .recipe-card .ingredient-amount {
@@ -128,20 +203,54 @@
 }
 
 .recipe-card .extra-items {
-  margin-bottom: 24px;
+  margin: 0 0 20px;
+  padding: 10px 14px;
   color: var(--text);
-  font-size: 14px;
+  font-size: 13px;
+  background: #fbf5ec;
+  border-radius: 10px;
 }
 
 .recipe-card .steps {
-  padding-left: 20px;
-  margin: 0 0 24px;
+  list-style: none;
+  counter-reset: step;
+  padding: 0;
+  margin: 0 0 20px;
 }
 
 .recipe-card .steps li {
-  margin-bottom: 8px;
+  counter-increment: step;
+  position: relative;
+  padding: 2px 0 2px 32px;
+  margin-bottom: 12px;
+  font-size: 14px;
+  color: var(--text-h);
+  line-height: 1.6;
+}
+
+.recipe-card .steps li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-heading);
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  background: var(--accent-green);
+  border-radius: 50%;
 }
 
 .recipe-result .no-match {
   margin: 24px 0;
+  padding: 20px;
+  text-align: center;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
 }

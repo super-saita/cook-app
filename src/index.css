@@ -1,12 +1,20 @@
 :root {
-  --text: #333333;
-  --text-h: #111111;
-  --bg: #ffffff;
-  --border: #e0e0e0;
-  --accent: #ff7a3d;
-  --accent-hover: #e8622a;
+  --text: #6b5d54;
+  --text-h: #2c2118;
+  --bg: #fdf7ef;
+  --bg-card: #ffffff;
+  --border: #efe2d3;
+  --accent: #ef7d4f;
+  --accent-hover: #dd6337;
+  --accent-soft: #ffe8d6;
+  --accent-green: #6f9a72;
+  --shadow-card: 0 4px 16px rgba(60, 40, 20, 0.08);
+  --shadow-card-hover: 0 8px 24px rgba(60, 40, 20, 0.12);
 
-  font: 16px/1.6 system-ui, 'Segoe UI', Roboto, sans-serif;
+  --font-heading: 'Zen Maru Gothic', system-ui, 'Segoe UI', Roboto, sans-serif;
+  --font-body: 'Zen Kaku Gothic New', system-ui, 'Segoe UI', Roboto, sans-serif;
+
+  font: 16px/1.7 var(--font-body);
   color: var(--text);
   background: var(--bg);
   font-synthesis: none;
@@ -20,11 +28,14 @@
 
 body {
   margin: 0;
-  background: var(--bg);
+  background: linear-gradient(180deg, #fff3e4 0%, #fdf7ef 220px, #fdf7ef 100%);
+  min-height: 100svh;
 }
 
 h1,
-h2 {
+h2,
+h3 {
+  font-family: var(--font-heading);
   color: var(--text-h);
   font-weight: 700;
 }
