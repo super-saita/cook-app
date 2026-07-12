@@ -37,8 +37,49 @@
 }
 
 .ingredient-form .lead {
-  margin: 0 0 24px;
+  margin: 0 0 20px;
   color: var(--text);
+}
+
+.style-tabs {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 8px;
+  width: 100%;
+  overflow-x: auto;
+  padding: 4px 2px 14px;
+  margin-bottom: 6px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.style-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.style-tab {
+  flex: 0 0 auto;
+  padding: 9px 14px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  color: var(--text);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.style-tab.selected {
+  color: #fff;
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.input-wrapper {
+  position: relative;
+  width: 100%;
 }
 
 .ingredient-input {
@@ -59,6 +100,44 @@
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.mic-button {
+  position: absolute;
+  right: 12px;
+  bottom: 32px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  color: var(--accent-hover);
+  background: var(--accent-soft);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: var(--shadow-card);
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.mic-button:hover {
+  transform: scale(1.05);
+}
+
+.mic-button.listening {
+  color: #fff;
+  background: #e0503a;
+  animation: mic-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes mic-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(224, 80, 58, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(224, 80, 58, 0);
+  }
 }
 
 .primary-button {

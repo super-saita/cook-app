@@ -236,9 +236,14 @@ const STYLES: Record<string, StyleDefinition> = {
   },
 }
 
-type StyleKey = keyof typeof STYLES
+export type StyleKey = keyof typeof STYLES
 
 const ALL_STYLES = Object.keys(STYLES) as StyleKey[]
+
+// トップ画面のスタイル選択タブ用に、キー・表示名・絵文字の一覧を公開する
+export const STYLE_LIST: { key: StyleKey; label: string; emoji: string }[] = ALL_STYLES.map(
+  (key) => ({ key, label: STYLES[key].titleSuffix, emoji: STYLES[key].emoji }),
+)
 
 // 生食向き・特殊な食材は、合わない調理法（グラタンやカレーなど）を除外する。
 // ここに載っていない食材はすべてのスタイルに対応できるとみなす。
@@ -347,9 +352,25 @@ function findBestSignatureMatch(inputText: string): Recipe | null {
   return best
 }
 
-export function getRecipeSuggestions(inputText: string): Recipe[] {
+// preferredStyle を指定すると、そのスタイルのレシピだけを1件返す
+// （食材と相性が悪ければ空配列）。指定がなければ、これまで通り
+// 手作りレシピ＋おすすめスタイル最大3件を返す。
+export function getRecipeSuggestions(
+  inputText: string,
+  preferredStyle?: StyleKey | null,
+): Recipe[] {
   const normalized = inputText.trim()
   if (!normalized) return []
+
+  const detected = detectIngredients(normalized)
+
+  if (preferredStyle) {
+    if (detected.length === 0) return []
+    const availableStyles = pickStyleKeys(detected)
+    if (!availableStyles.includes(preferredStyle)) return []
+    const idSuffix = detected.map((d) => d.name).join('-')
+    return [buildRecipeForStyle(preferredStyle, detected, `${idSuffix}-${preferredStyle}`)]
+  }
 
   const suggestions: Recipe[] = []
 
@@ -358,7 +379,6 @@ export function getRecipeSuggestions(inputText: string): Recipe[] {
     suggestions.push(signatureMatch)
   }
 
-  const detected = detectIngredients(normalized)
   if (detected.length > 0) {
     const idSuffix = detected.map((d) => d.name).join('-')
     for (const styleKey of pickStyleKeys(detected)) {
