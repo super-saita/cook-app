@@ -63,12 +63,49 @@
 
 .recipe-result h2 {
   font-size: 22px;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
+}
+
+.recipe-result .servings {
+  margin: 0 0 16px;
+  color: var(--text);
+  font-size: 14px;
+}
+
+.recipe-result h3 {
+  font-size: 16px;
+  margin: 0 0 8px;
+  color: var(--text-h);
+}
+
+.recipe-result .ingredients {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 12px;
+  border-top: 1px solid var(--border);
+}
+
+.recipe-result .ingredients li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.recipe-result .ingredient-name {
+  color: var(--text-h);
+}
+
+.recipe-result .ingredient-amount {
+  color: var(--text);
+  white-space: nowrap;
 }
 
 .recipe-result .extra-items {
-  margin-bottom: 16px;
+  margin-bottom: 24px;
   color: var(--text);
+  font-size: 14px;
 }
 
 .recipe-result .steps {

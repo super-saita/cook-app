@@ -31,7 +31,20 @@ export function RecipeResult({ recipe, inputText, onBack }: RecipeResultProps) {
       {recipe ? (
         <>
           <h2>{recipe.title}</h2>
+          <p className="servings">{recipe.servings}</p>
+
+          <h3>材料</h3>
+          <ul className="ingredients">
+            {recipe.ingredients.map((ingredient, i) => (
+              <li key={i}>
+                <span className="ingredient-name">{ingredient.name}</span>
+                <span className="ingredient-amount">{ingredient.amount}</span>
+              </li>
+            ))}
+          </ul>
           <p className="extra-items">追加で必要なもの：{recipe.extraItems}</p>
+
+          <h3>作り方</h3>
           <ol className="steps">
             {recipe.steps.map((step, i) => (
               <li key={i}>{step}</li>
