@@ -11,6 +11,7 @@ export interface Recipe {
   ingredients: RecipeIngredient[]
   extraItems: string
   steps: string[]
+  emoji: string
 }
 
 export interface SavedRecipe extends Recipe {

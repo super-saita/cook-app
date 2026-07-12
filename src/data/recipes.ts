@@ -1,12 +1,11 @@
 import type { Recipe } from '../types/recipe'
-import type { IngredientInfo } from './ingredients'
-import { ingredients, ROOT_STYLE_INGREDIENTS } from './ingredients'
 
-// 手作りの厳選レシピ（自動生成より優先してマッチする）
-const signatureRecipes: Recipe[] = [
+// 手作りの厳選レシピ（recipeEngineの動的生成より優先してマッチする）
+export const signatureRecipes: Recipe[] = [
   {
     id: 'bang-bang-ji',
     title: 'バンバンジー',
+    emoji: '🍗',
     requiredKeywords: ['鶏胸肉', '鶏むね肉', 'きゅうり'],
     servings: '2人分',
     ingredients: [
@@ -27,6 +26,7 @@ const signatureRecipes: Recipe[] = [
   {
     id: 'moyashi-itame',
     title: 'もやしと豚肉のシンプル炒め',
+    emoji: '🥘',
     requiredKeywords: ['もやし', '豚肉', '豚バラ'],
     servings: '2人分',
     ingredients: [
@@ -47,6 +47,7 @@ const signatureRecipes: Recipe[] = [
   {
     id: 'tamago-yasai-chahan',
     title: '野菜たっぷり卵チャーハン',
+    emoji: '🍚',
     requiredKeywords: ['卵', 'ご飯', 'にんじん', '玉ねぎ'],
     servings: '2人分',
     ingredients: [
@@ -69,6 +70,7 @@ const signatureRecipes: Recipe[] = [
   {
     id: 'potato-cheese-galette',
     title: 'じゃがいもとチーズのガレット',
+    emoji: '🧀',
     requiredKeywords: ['じゃがいも', 'チーズ'],
     servings: '2人分',
     ingredients: [
@@ -88,6 +90,7 @@ const signatureRecipes: Recipe[] = [
   {
     id: 'tofu-negi-miso-soup',
     title: '豆腐と長ねぎの味噌汁',
+    emoji: '🍲',
     requiredKeywords: ['豆腐', 'ねぎ', '長ねぎ'],
     servings: '2人分',
     ingredients: [
@@ -108,6 +111,7 @@ const signatureRecipes: Recipe[] = [
   {
     id: 'cabbage-pork-itame',
     title: 'キャベツと豚肉の味噌炒め',
+    emoji: '🥘',
     requiredKeywords: ['キャベツ', '豚肉', '豚バラ'],
     servings: '2人分',
     ingredients: [
@@ -129,6 +133,7 @@ const signatureRecipes: Recipe[] = [
   {
     id: 'tomato-tamago-itame',
     title: 'トマトと卵の炒め物',
+    emoji: '🍅',
     requiredKeywords: ['トマト', '卵'],
     servings: '2人分',
     ingredients: [
@@ -149,6 +154,7 @@ const signatureRecipes: Recipe[] = [
   {
     id: 'nasu-miso-itame',
     title: 'なすと豚ひき肉の味噌炒め',
+    emoji: '🍆',
     requiredKeywords: ['なす', 'ひき肉', '豚ひき肉'],
     servings: '2人分',
     ingredients: [
@@ -170,6 +176,7 @@ const signatureRecipes: Recipe[] = [
   {
     id: 'daikon-tori-nimono',
     title: '大根と鶏肉の煮物',
+    emoji: '🍲',
     requiredKeywords: ['大根', '鶏肉', '鶏もも肉'],
     servings: '2〜3人分',
     ingredients: [
@@ -191,6 +198,7 @@ const signatureRecipes: Recipe[] = [
   {
     id: 'tuna-onion-salad',
     title: 'ツナと玉ねぎのサラダ',
+    emoji: '🥗',
     requiredKeywords: ['ツナ', 'ツナ缶', '玉ねぎ'],
     servings: '2人分',
     ingredients: [
@@ -209,6 +217,7 @@ const signatureRecipes: Recipe[] = [
   {
     id: 'hourensou-ohitashi',
     title: 'ほうれん草のおひたし',
+    emoji: '🥬',
     requiredKeywords: ['ほうれん草'],
     servings: '2人分',
     ingredients: [
@@ -227,6 +236,7 @@ const signatureRecipes: Recipe[] = [
   {
     id: 'kinoko-pork-itame',
     title: 'きのこと豚肉のバター醤油炒め',
+    emoji: '🍄',
     requiredKeywords: ['きのこ', 'しめじ', 'えのき', '豚肉'],
     servings: '2人分',
     ingredients: [
@@ -246,6 +256,7 @@ const signatureRecipes: Recipe[] = [
   {
     id: 'shake-hoiruyaki',
     title: '鮭ときのこのホイル焼き',
+    emoji: '🐟',
     requiredKeywords: ['鮭', 'サーモン', 'きのこ', '玉ねぎ'],
     servings: '2人分',
     ingredients: [
@@ -267,6 +278,7 @@ const signatureRecipes: Recipe[] = [
   {
     id: 'napolitan',
     title: 'ナポリタン風パスタ',
+    emoji: '🍝',
     requiredKeywords: ['パスタ', 'スパゲティ', 'ウインナー', 'ピーマン'],
     servings: '2人分',
     ingredients: [
@@ -288,6 +300,7 @@ const signatureRecipes: Recipe[] = [
   {
     id: 'yaki-udon',
     title: '豚肉とキャベツの焼きうどん',
+    emoji: '🍜',
     requiredKeywords: ['うどん', 'キャベツ', '豚肉'],
     servings: '2人分',
     ingredients: [
@@ -308,6 +321,7 @@ const signatureRecipes: Recipe[] = [
   {
     id: 'okonomiyaki',
     title: 'キャベツたっぷりお好み焼き',
+    emoji: '🥞',
     requiredKeywords: ['キャベツ', '卵', '小麦粉'],
     servings: '2人分（2枚）',
     ingredients: [
@@ -329,6 +343,7 @@ const signatureRecipes: Recipe[] = [
   {
     id: 'yasai-cream-soup',
     title: 'にんじん・じゃがいも・玉ねぎの野菜スープ',
+    emoji: '🍲',
     requiredKeywords: ['にんじん', 'じゃがいも', '玉ねぎ'],
     servings: '2〜3人分',
     ingredients: [
@@ -350,6 +365,7 @@ const signatureRecipes: Recipe[] = [
   {
     id: 'tuna-tamago-omelette',
     title: 'ツナ入りオムレツ',
+    emoji: '🍳',
     requiredKeywords: ['卵', 'ツナ', 'ツナ缶'],
     servings: '2人分',
     ingredients: [
@@ -369,6 +385,7 @@ const signatureRecipes: Recipe[] = [
   {
     id: 'atsuage-hikiniku-chuka',
     title: '厚揚げとひき肉の中華風炒め',
+    emoji: '🥘',
     requiredKeywords: ['厚揚げ', 'ひき肉', '豚ひき肉'],
     servings: '2人分',
     ingredients: [
@@ -388,73 +405,3 @@ const signatureRecipes: Recipe[] = [
     ],
   },
 ]
-
-function buildStirFry(a: IngredientInfo, b: IngredientInfo, id: string): Recipe {
-  return {
-    id,
-    title: `${a.name}と${b.name}の炒め物`,
-    requiredKeywords: [a.name, b.name],
-    servings: '2人分',
-    ingredients: [
-      { name: a.name, amount: a.amount },
-      { name: b.name, amount: b.amount },
-      { name: '醤油', amount: '大さじ1' },
-      { name: '酒', amount: '大さじ1' },
-      { name: '塩コショウ', amount: '少々' },
-      { name: 'サラダ油', amount: '大さじ1' },
-    ],
-    extraItems: '基本の調味料のみで作れます。',
-    steps: [
-      `${a.name}は${a.prep}。`,
-      `${b.name}は${b.prep}。`,
-      `フライパンに油をひき、${a.name}を中火で炒める。`,
-      `${b.name}を加え、全体に火が通るまで炒め合わせる。`,
-      '醤油・酒・塩コショウで味を調えれば出来上がり。',
-    ],
-  }
-}
-
-function buildSimmer(a: IngredientInfo, b: IngredientInfo, id: string): Recipe {
-  return {
-    id,
-    title: `${a.name}と${b.name}の煮物`,
-    requiredKeywords: [a.name, b.name],
-    servings: '2人分',
-    ingredients: [
-      { name: a.name, amount: a.amount },
-      { name: b.name, amount: b.amount },
-      { name: '水', amount: '300ml' },
-      { name: '醤油', amount: '大さじ2' },
-      { name: 'みりん', amount: '大さじ2' },
-      { name: '砂糖', amount: '大さじ1' },
-    ],
-    extraItems: '基本の調味料のみで作れます。',
-    steps: [
-      `${a.name}は${a.prep}。`,
-      `${b.name}は${b.prep}。`,
-      `鍋に水を入れて火にかけ、沸騰したら${a.name}と${b.name}を加える。`,
-      'アクを取りながら中火で5分ほど煮る。',
-      '醤油・みりん・砂糖を加え、落し蓋をして10分ほど煮含めれば出来上がり。',
-    ],
-  }
-}
-
-// 食材辞書の全ペアからレシピを自動生成する。
-// どちらかが煮物向き食材なら煮物、それ以外は炒め物にする。
-function generateCombinationRecipes(): Recipe[] {
-  const generated: Recipe[] = []
-  for (let i = 0; i < ingredients.length; i++) {
-    for (let j = i + 1; j < ingredients.length; j++) {
-      const a = ingredients[i]
-      const b = ingredients[j]
-      const useSimmer =
-        ROOT_STYLE_INGREDIENTS.has(a.name) || ROOT_STYLE_INGREDIENTS.has(b.name)
-      const id = `gen-${i}-${j}`
-      generated.push(useSimmer ? buildSimmer(a, b, id) : buildStirFry(a, b, id))
-    }
-  }
-  return generated
-}
-
-// 手作りレシピを優先し、続けて自動生成レシピで網羅性を確保する。
-export const recipes: Recipe[] = [...signatureRecipes, ...generateCombinationRecipes()]

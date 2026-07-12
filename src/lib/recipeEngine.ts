@@ -1,0 +1,200 @@
+import type { IngredientInfo } from '../data/ingredients'
+import { ingredients as ingredientDictionary, ROOT_STYLE_INGREDIENTS } from '../data/ingredients'
+import { signatureRecipes } from '../data/recipes'
+import type { Recipe, RecipeIngredient } from '../types/recipe'
+
+const MAX_DETECTED_INGREDIENTS = 4
+const MAX_SUGGESTIONS = 3
+
+function joinNames(names: string[]): string {
+  if (names.length <= 1) return names[0] ?? ''
+  if (names.length === 2) return `${names[0]}と${names[1]}`
+  return names.join('・')
+}
+
+function prepLines(detected: IngredientInfo[]): string[] {
+  return detected.map((ingredient) => `${ingredient.name}は${ingredient.prep}。`)
+}
+
+function mainIngredients(detected: IngredientInfo[]): RecipeIngredient[] {
+  return detected.map((ingredient) => ({ name: ingredient.name, amount: ingredient.amount }))
+}
+
+interface StyleDefinition {
+  emoji: string
+  titleSuffix: string
+  seasoning: RecipeIngredient[]
+  buildSteps: (detected: IngredientInfo[]) => string[]
+}
+
+const STYLES: Record<string, StyleDefinition> = {
+  stirfry: {
+    emoji: '🍳',
+    titleSuffix: '炒め物',
+    seasoning: [
+      { name: '醤油', amount: '大さじ1' },
+      { name: '酒', amount: '大さじ1' },
+      { name: '塩コショウ', amount: '少々' },
+      { name: 'サラダ油', amount: '大さじ1' },
+    ],
+    buildSteps: (detected) => [
+      ...prepLines(detected),
+      `フライパンに油をひき、${detected[0].name}から順に中火で炒める。`,
+      '火が通ってきたら残りの食材を加え、炒め合わせる。',
+      '醤油・酒・塩コショウで味を調えれば出来上がり。',
+    ],
+  },
+  simmer: {
+    emoji: '🍲',
+    titleSuffix: '煮物',
+    seasoning: [
+      { name: '水', amount: '300ml' },
+      { name: '醤油', amount: '大さじ2' },
+      { name: 'みりん', amount: '大さじ2' },
+      { name: '砂糖', amount: '大さじ1' },
+    ],
+    buildSteps: (detected) => [
+      ...prepLines(detected),
+      '鍋に水を入れて火にかけ、沸騰したら食材を加える。',
+      'アクを取りながら中火で5分ほど煮る。',
+      '醤油・みりん・砂糖を加え、落し蓋をして10分ほど煮含めれば出来上がり。',
+    ],
+  },
+  soup: {
+    emoji: '🥣',
+    titleSuffix: 'スープ',
+    seasoning: [
+      { name: '水', amount: '400ml' },
+      { name: 'コンソメ顆粒', amount: '小さじ2' },
+      { name: '塩コショウ', amount: '少々' },
+    ],
+    buildSteps: (detected) => [
+      ...prepLines(detected),
+      '鍋に水とコンソメを入れて火にかける。',
+      '食材を加え、やわらかくなるまで煮る。',
+      '塩コショウで味を調えれば出来上がり。',
+    ],
+  },
+  salad: {
+    emoji: '🥗',
+    titleSuffix: 'サラダ',
+    seasoning: [
+      { name: 'マヨネーズ', amount: '大さじ2' },
+      { name: '醤油', amount: '小さじ1' },
+    ],
+    buildSteps: (detected) => [
+      ...prepLines(detected),
+      '生の食感が気になる食材は、さっと茹でるか電子レンジで加熱しておく。',
+      'ボウルに食材を入れる。',
+      'マヨネーズ・醤油を加えて和えれば出来上がり。',
+    ],
+  },
+  gratin: {
+    emoji: '🧀',
+    titleSuffix: 'チーズグラタン',
+    seasoning: [
+      { name: 'バター', amount: '20g' },
+      { name: '小麦粉', amount: '大さじ2' },
+      { name: '牛乳', amount: '300ml' },
+      { name: 'ピザ用チーズ', amount: '80g' },
+      { name: '塩コショウ', amount: '少々' },
+    ],
+    buildSteps: (detected) => [
+      ...prepLines(detected),
+      'フライパンにバターを溶かし、食材を炒める。',
+      '小麦粉を加えて粉っぽさがなくなるまで炒め、牛乳を少しずつ加えてとろみをつける。',
+      '塩コショウで味を調え、耐熱皿に入れてチーズをのせる。',
+      'オーブントースターで焼き色がつくまで焼けば出来上がり。',
+    ],
+  },
+  curry: {
+    emoji: '🍛',
+    titleSuffix: 'カレー',
+    seasoning: [
+      { name: '水', amount: '400ml' },
+      { name: 'カレールウ', amount: '2〜3皿分' },
+      { name: 'ご飯', amount: 'お好みで' },
+    ],
+    buildSteps: (detected) => [
+      ...prepLines(detected),
+      '鍋に油をひき、食材を炒める。',
+      '水を加えて煮立て、アクを取りながら食材がやわらかくなるまで煮る。',
+      '一度火を止めてカレールウを溶かし入れる。',
+      '再び弱火にかけ、とろみがつくまで煮込めば出来上がり。ご飯にかけてどうぞ。',
+    ],
+  },
+}
+
+// 根菜系が含まれる場合は「煮る・煮込む」系、それ以外は「焼く・煮立てる」系を提案する
+function pickStyleKeys(detected: IngredientInfo[]): (keyof typeof STYLES)[] {
+  const hasRoot = detected.some((ingredient) => ROOT_STYLE_INGREDIENTS.has(ingredient.name))
+  return hasRoot ? ['stirfry', 'simmer', 'curry'] : ['stirfry', 'soup', 'gratin']
+}
+
+function buildRecipeForStyle(
+  styleKey: keyof typeof STYLES,
+  detected: IngredientInfo[],
+  idSuffix: string,
+): Recipe {
+  const style = STYLES[styleKey]
+  const joinedNames = joinNames(detected.map((d) => d.name))
+  return {
+    id: `gen-${styleKey}-${idSuffix}`,
+    title: `${joinedNames}の${style.titleSuffix}`,
+    requiredKeywords: detected.map((d) => d.name),
+    servings: '2人分',
+    ingredients: [...mainIngredients(detected), ...style.seasoning],
+    extraItems: '基本の調味料のみで作れます。',
+    steps: style.buildSteps(detected),
+    emoji: style.emoji,
+  }
+}
+
+// 入力文に登場する順番で、辞書に登録された食材を最大4つまで検出する
+function detectIngredients(inputText: string): IngredientInfo[] {
+  const matches = ingredientDictionary
+    .map((ingredient) => ({ ingredient, index: inputText.indexOf(ingredient.name) }))
+    .filter((match) => match.index !== -1)
+    .sort((a, b) => a.index - b.index)
+
+  return matches.slice(0, MAX_DETECTED_INGREDIENTS).map((match) => match.ingredient)
+}
+
+// 手作りレシピのうち、キーワードが2つ以上一致するものを優先候補として探す
+function findBestSignatureMatch(inputText: string): Recipe | null {
+  let best: Recipe | null = null
+  let bestScore = 0
+
+  for (const recipe of signatureRecipes) {
+    const score = recipe.requiredKeywords.filter((keyword) => inputText.includes(keyword)).length
+    if (score >= 2 && score > bestScore) {
+      bestScore = score
+      best = recipe
+    }
+  }
+
+  return best
+}
+
+export function getRecipeSuggestions(inputText: string): Recipe[] {
+  const normalized = inputText.trim()
+  if (!normalized) return []
+
+  const suggestions: Recipe[] = []
+
+  const signatureMatch = findBestSignatureMatch(normalized)
+  if (signatureMatch) {
+    suggestions.push(signatureMatch)
+  }
+
+  const detected = detectIngredients(normalized)
+  if (detected.length > 0) {
+    const idSuffix = detected.map((d) => d.name).join('-')
+    for (const styleKey of pickStyleKeys(detected)) {
+      if (suggestions.length >= MAX_SUGGESTIONS) break
+      suggestions.push(buildRecipeForStyle(styleKey, detected, `${idSuffix}-${styleKey}`))
+    }
+  }
+
+  return suggestions.slice(0, MAX_SUGGESTIONS)
+}
