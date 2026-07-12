@@ -328,14 +328,16 @@ function buildRecipeForStyle(
   styleKey: keyof typeof STYLES,
   detected: IngredientInfo[],
   idSuffix: string,
+  autoAddedNames: string[] = [],
 ): Recipe {
   const style = STYLES[styleKey]
   const companions = getCompanionIngredients(styleKey, detected)
   const allIngredients = [...detected, ...companions]
   const joinedNames = joinNames(detected.map((d) => d.name))
+  const allAutoAdded = [...autoAddedNames, ...companions.map((c) => c.name)]
   const extraItems =
-    companions.length > 0
-      ? `${companions.map((c) => c.name).join('・')}を定番の具材として追加しています。お好みで調整してください。`
+    allAutoAdded.length > 0
+      ? `${allAutoAdded.join('・')}を組み合わせとして追加しています。お好みで調整してください。`
       : style.extraItems
   return {
     id: `gen-${styleKey}-${idSuffix}`,
@@ -351,12 +353,54 @@ function buildRecipeForStyle(
 
 // 入力文に登場する順番で、辞書に登録された食材を最大4つまで検出する
 function detectIngredients(inputText: string): IngredientInfo[] {
-  const matches = ingredientDictionary
+  const rawMatches = ingredientDictionary
     .map((ingredient) => ({ ingredient, index: inputText.indexOf(ingredient.name) }))
     .filter((match) => match.index !== -1)
-    .sort((a, b) => a.index - b.index)
+    .map((match) => ({ ...match, end: match.index + match.ingredient.name.length }))
+
+  // 「玉ねぎ」の中の「ねぎ」のように、他の一致に完全に内包される
+  // 短い一致は二重検出とみなして除外する。
+  const matches = rawMatches.filter(
+    (match) =>
+      !rawMatches.some(
+        (other) =>
+          other !== match &&
+          other.ingredient.name.length > match.ingredient.name.length &&
+          other.index <= match.index &&
+          other.end >= match.end,
+      ),
+  )
+  matches.sort((a, b) => a.index - b.index)
 
   return matches.slice(0, MAX_DETECTED_INGREDIENTS).map((match) => match.ingredient)
+}
+
+const PROTEIN_NAMES = new Set([
+  '鶏肉', '豚肉', '牛肉', 'ひき肉', 'ベーコン', 'ウインナー', '卵', '豆腐',
+  '厚揚げ', '油揚げ', '納豆', 'ツナ缶', 'さば缶', '鮭', 'えび', 'ちくわ',
+])
+const VEGETABLE_PARTNER_CANDIDATES = ['玉ねぎ', 'キャベツ', 'もやし', 'にんじん']
+const PROTEIN_PARTNER_CANDIDATES = ['豚肉', '卵', '鶏肉', 'ツナ缶']
+
+// 食材が1つしか検出できないと「ねぎの炒め物」のように単調な提案に
+// なってしまうため、相性の良い定番食材を1つ自動で組み合わせる
+// （肉・魚・卵・豆腐系なら野菜を、野菜系ならタンパク質を追加）。
+function ensureMultipleIngredients(
+  detected: IngredientInfo[],
+): { ingredients: IngredientInfo[]; addedPartner: IngredientInfo | null } {
+  if (detected.length !== 1) return { ingredients: detected, addedPartner: null }
+
+  const sole = detected[0]
+  const candidates = PROTEIN_NAMES.has(sole.name)
+    ? VEGETABLE_PARTNER_CANDIDATES
+    : PROTEIN_PARTNER_CANDIDATES
+  const partnerName = candidates.find((name) => name !== sole.name)
+  const partner = partnerName
+    ? ingredientDictionary.find((ingredient) => ingredient.name === partnerName)
+    : undefined
+
+  if (!partner) return { ingredients: detected, addedPartner: null }
+  return { ingredients: [...detected, partner], addedPartner: partner }
 }
 
 // 手作りレシピのうち、キーワードが2つ以上一致するものを優先候補として探す
@@ -385,14 +429,18 @@ export function getRecipeSuggestions(
   const normalized = inputText.trim()
   if (!normalized) return []
 
-  const detected = detectIngredients(normalized)
+  const rawDetected = detectIngredients(normalized)
+  const { ingredients: detected, addedPartner } = ensureMultipleIngredients(rawDetected)
+  const autoAddedNames = addedPartner ? [addedPartner.name] : []
 
   if (preferredStyle) {
     if (detected.length === 0) return []
     const availableStyles = pickStyleKeys(detected)
     if (!availableStyles.includes(preferredStyle)) return []
     const idSuffix = detected.map((d) => d.name).join('-')
-    return [buildRecipeForStyle(preferredStyle, detected, `${idSuffix}-${preferredStyle}`)]
+    return [
+      buildRecipeForStyle(preferredStyle, detected, `${idSuffix}-${preferredStyle}`, autoAddedNames),
+    ]
   }
 
   const suggestions: Recipe[] = []
@@ -406,7 +454,7 @@ export function getRecipeSuggestions(
     const idSuffix = detected.map((d) => d.name).join('-')
     for (const styleKey of pickStyleKeys(detected)) {
       if (suggestions.length >= MAX_SUGGESTIONS) break
-      suggestions.push(buildRecipeForStyle(styleKey, detected, `${idSuffix}-${styleKey}`))
+      suggestions.push(buildRecipeForStyle(styleKey, detected, `${idSuffix}-${styleKey}`, autoAddedNames))
     }
   }
 
